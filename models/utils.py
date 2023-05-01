@@ -1,5 +1,6 @@
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
+from pytorch_lightning.strategies import SingleDeviceStrategy
 from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 
 def worker(log_dir, name, epochs):
@@ -18,7 +19,8 @@ def worker(log_dir, name, epochs):
                 save_last = True
             )
         ],
-        max_epochs = epochs
+        max_epochs = epochs,
+        strategy = SingleDeviceStrategy(device = 1)
     )
 
     return trainer
@@ -27,4 +29,4 @@ def train(model, train_loader, log_dir, name, epochs = 100):
     worker(log_dir, name, epochs).fit(model, train_loader)
 
 def test(model, test_loader, log_dir, name, epochs = 1):
-    worker(log_dir, name, epochs).test(model, test_loader)
+    worker(log_dir, name, epochs).validate(model, test_loader)
